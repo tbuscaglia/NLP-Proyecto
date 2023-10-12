@@ -1,45 +1,25 @@
 ### Proyecto NLP ###
 
 # Importar datos de reddit
+import csv
 
-import re
+file_path = 'C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/NLP-Proyecto/clean_data/mcfc_filtered.csv'
 
-mcfc = open('C:/Users/tomas/Downloads/MCFC_comments', 'r', encoding='utf-8').read()
+mcfc_clean = []
 
-print(mcfc[:5000])
+with open(file_path, 'r', encoding="utf-8") as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter = ',')
+    for row in csv_file:
+      mcfc_clean.append(row)
 
-test = mcfc[:100000]
-
-test = test.split('"body":')[1:]
-
-comments_mcfc = []
-
-for t in test:
-  comment = t.split('","')
-  if '[deleted]' not in comment[0]: 
-    comments_mcfc.append(comment[0] )
- 
-    
-clean_comments = [] 
-for c in comments_mcfc:
-  com = c.split('}')
-  clean_comments.append(com[0])    
-
+abab = mcfc_clean[:1000]
 
 '''
-r'[ }  http: ]')
-  
-re.sub('\n',' ',sent)
-
-comments_mcfc = [t.split('","')[0] for t in test if '[deleted]' not in t.split('","')[0]]
-clean_comments = [c.split('}')[0] for c in comments_mcfc]
+queremos borrar las filas vacias del csv.
+for line in mcfc_clean:   
+    for i in range(0, len(mcfc_clean)):
+      if i % 2 == 0: 
+          del line[i]
 '''
-
-
-
-
-
-
-
 
 
