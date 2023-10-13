@@ -3,23 +3,32 @@
 import os
 import json
 import csv
+import re
 from tqdm import tqdm
 from datetime import datetime
+url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+def url_cleaner(text):
+    texto_no_urls = re.sub(url_pattern, '', text)
+    return texto_no_urls
+
 
 def process_comments(input_filename, output_filename, zip_filename, name):
     filtered_data = []
-
+    
     with open(input_filename, 'r', encoding="utf8") as file:
-        for line in tqdm(file):
+        for line in (file):
             data = json.loads(line)
             created_utc = data['created_utc']
             timestamp = datetime.utcfromtimestamp(int(created_utc))
             formatted_date = timestamp.strftime("%Y %m %d")
-            if int(created_utc) > 1628650800 and int(created_utc) < 1653447599:  # Unix Time ~ 1/1/2021
+            if int(created_utc) > 1628650800 and int(created_utc) < 1653447599: #unix time = ?
                 filtered_data.append([created_utc, data['body']])
 
     filtered_data = [sublist for sublist in filtered_data if '[deleted]' not in sublist and '[removed]' not in sublist]
-
+    
+    for line in filtered_data:
+        line[1] = url_cleaner(line[1])
+        
     with open(output_filename, mode='w', newline='', encoding="utf-8") as file:
         writer = csv.writer(file, delimiter='\t')
 
