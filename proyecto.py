@@ -14,12 +14,6 @@ with open(file_path, 'r', encoding="utf-8") as csv_file:
 
 abab = mcfc_clean[:1000]
 
-'''
-queremos borrar las filas vacias del csv.
-for line in mcfc_clean:   
-    for i in range(0, len(mcfc_clean)):
-      if i % 2 == 0: 
-          del line[i]
-'''
+
 
 
