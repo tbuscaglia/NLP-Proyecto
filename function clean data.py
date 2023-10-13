@@ -1,4 +1,4 @@
-### Testing clean data function
+### Generating cleaning data function
 
 import os
 import json
@@ -6,12 +6,14 @@ import csv
 import re
 from tqdm import tqdm
 from datetime import datetime
+
+#First, we define a url cleaner function to be used later
 url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 def url_cleaner(text):
     texto_no_urls = re.sub(url_pattern, '', text)
     return texto_no_urls
 
-
+# Then, we generate the reddit comments cleaning function
 def process_comments(input_filename, output_filename, zip_filename, name):
     filtered_data = []
     
@@ -21,7 +23,7 @@ def process_comments(input_filename, output_filename, zip_filename, name):
             created_utc = data['created_utc']
             timestamp = datetime.utcfromtimestamp(int(created_utc))
             formatted_date = timestamp.strftime("%Y %m %d")
-            if int(created_utc) > 1628650800 and int(created_utc) < 1653447599: #unix time = ?
+            if int(created_utc) > 1628650800 and int(created_utc) < 1653447599: #Unix time = we filter data from 2 days before the beggining, to 2 days after the end of the EPL 21/22 season.
                 filtered_data.append([created_utc, data['body']])
 
     filtered_data = [sublist for sublist in filtered_data if '[deleted]' not in sublist and '[removed]' not in sublist]
@@ -70,34 +72,14 @@ def process_comments(input_filename, output_filename, zip_filename, name):
 Steps for running code:
     1 - Download reddit comments as .zst file
     2 - Run in the console !zstd --decompress path/to/file.zst
-    3 - Edit input_file, output_file, zip_filename and name acordingly
-    4 - Run line with function
-
-    
-!zstd --decompress 
-
-
+    3 - Edit folder name with the path of the folder that contains the comments files (both compressed and decompressed)
+    4 - Edit file name with the names of the decompressed files
+    5 - Run the loop containing the process_comments function
 '''
-
-# MCFC #
-
-input_file = 'C:/Users/tomas/Downloads/MCFC_comments'
-zip_filename = "C:/Users/tomas/Downloads/MCFC_comments.zst"
-
-name = 'mcfc'
-output_file = f'C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/NLP-Proyecto/clean_data/{name}_filtered.csv'
-
-
-mcfc_data = process_comments(input_file, output_file, zip_filename, name)
-subset_mcfc_data = mcfc_data[:1000]
-
-# West Ham #
-
-input_file = 'C:/Users/tomas/Downloads/Hammers_comments'
-zip_filename = "C:/Users/tomas/Downloads/Hammers_comments.zst"
-
-name = 'WHU'
-output_file = f'C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/NLP-Proyecto/clean_data/{name}_filtered.csv'
-
-whu_data = process_comments(input_file, output_file, zip_filename, name)
-subset_whu_data = whu_data[:1000]
+folder = "/Users/julianandelsman/Desktop/NLP/Final project/Clean data"
+files  = ["coys_comments", "avfc_comments"]
+for file in files:
+    input = folder + "/" + file
+    zip = input + ".zst"
+    output = f'{folder}/{file}filtered.csv'
+    process_comments(input, output, zip, file)
