@@ -47,7 +47,7 @@ def process_comments(input_filename, output_filename, zip_filename, name):
     filtered_data = []
     
     with open(input_filename, 'r', encoding="utf8") as file:
-        for line in (file):
+        for line in tqdm(file):
             data = json.loads(line)
             created_utc = data['created_utc']
             timestamp = datetime.utcfromtimestamp(int(created_utc))
@@ -72,10 +72,11 @@ def process_comments(input_filename, output_filename, zip_filename, name):
     
     filtered_data_3 = []
     sentence_clean = {}
+    emoji_pattern = re.compile(r"[^\w\s,]|[\x00-\x7F]{3}|([\x00-\x7F]{2}[\uDC00-\uDFFF])|(\uDC00[\x00-\x7F])|([\x00-\x7F]{2}(\u200D[\x00-\x7F])+)|((\u200D[\x00-\x7F])+[\x00-\x7F]{2})")
     for i in range (0, len(filtered_data_2)):
         text = ""
         for c in filtered_data_2[i][1]:
-            if c.isalnum() or c == " ":
+            if c.isalnum() or c == " " or emoji_pattern.search(c):
                 text += c
         if len(text)>0:
             sentence_clean[i] = text
@@ -128,6 +129,9 @@ Steps for running code:
     4 - Edit file name with the names of the decompressed files
     5 - Run the loop containing the process_comments function
 '''
+
+
+
 folder = "/Users/julianandelsman/Downloads"
 files  = ["NUFC_comments"]
 for file in files:
@@ -135,3 +139,17 @@ for file in files:
     zip = input + ".zst"
     output = f'{folder}/{file}filtered.csv'
     process_comments(input, output, zip, file)
+
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
