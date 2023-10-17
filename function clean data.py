@@ -32,7 +32,7 @@ def word_cutter(L):
     line_count = 0
     for i in range(0,len(L)):
         row = L[i]
-        words = row[1].lower().split(' ')
+        words = row[1].split(' ')
         valid_words = []
         for w in words:
             if (len(w)-mean_len)/std_len <3:
