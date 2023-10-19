@@ -40,7 +40,6 @@ with open('C:/Users/tomas/Downloads/E0.csv', 'r') as csv_file:
       dataEPL21_22.append(row)
 
 
-
 # Transform data into dataframes: 
 
 columns = ['Date', 'HomeTeam', 'AwayTeam', 'prob_homewin', 'prob_awaywin', 'prob_tie', 'importance_home', 'importance_away',  'score_home', 'score_away']
@@ -76,10 +75,68 @@ result = df_bets.merge(df_spi, on=['Date', 'HomeTeam', 'AwayTeam'], how='inner')
 
 match_info = result[['Date', 'Time', 'HomeTeam', 'AwayTeam', 'prob_homewin', 'prob_awaywin', 'prob_tie', 'importance_home', 'importance_away',  'score_home', 'score_away']]
 
+#Convert date and time to unix time
+
+combined_datetime = match_info['Date'] + ' ' + match_info['Time']
+match_info['CombinedDateTime'] = pd.to_datetime(combined_datetime, format='%d/%m/%Y %H:%M')
+
+
+match_info['UnixTimestamp'] = match_info['CombinedDateTime'].apply(lambda x: int(x.timestamp()))
+
+#Start and end match unix time adjusted to GMT time zone
+match_info['Unix_start'] = match_info['UnixTimestamp'] - 3600
+match_info['Unix_end'] = match_info['UnixTimestamp'] + 3600
+
 #Create gap score ecuation
 
 match_info['R_home'] = (match_info['score_home'] > match_info['score_away']).astype(int) - (match_info['score_home'] < match_info['score_away']).astype(int)
-
 match_info['R_away'] = -match_info['R_home']
+
+match_info['beta_home'] = 0.2 * match_info['R_home']
+match_info['beta_away'] = 0.2 * match_info['R_away']
+
+match_info['prob_awaywin'] = match_info['prob_awaywin'].astype(float)
+match_info['prob_homewin'] = match_info['prob_homewin'].astype(float)
+match_info['score_home'] = match_info['score_home'].astype(int)
+match_info['score_away'] = match_info['score_away'].astype(int)
+
+match_info['gamma_home'] = (match_info['prob_awaywin'] * match_info['score_home'] - match_info['prob_homewin'] * match_info['score_away']) / (match_info['score_home'] + match_info['score_away'])
+
+unique_values = match_info['HomeTeam'].unique()
+
+
+#Offensive and defensive scores 
+
+lista = [['Man City', 3.0, 0.2], ['Liverpool', 3.0, 0.4]]
+
+
+
+Chelsea = [2.5, 0.4]
+Arsenal = [2.2, 0.5]
+Tottenham = [2.2,0.6]
+West Ham = [2.1,0.8]
+Man United = [2.2,0.7]
+Brighton = [1.9,0.6]
+Leicester = [2.2, 0.9]
+Wolves = [1.7,0.5]
+Aston Villa = [2.0,0.8]
+Crystal Palace = [1.9,0.8]
+Brentford = [1.8,0.8]
+Everton = [1.9, 0.9]
+Southampton = [1.8,0.9]
+Leeds = [1.9, 1.0]
+Burnley = [1.8,1.0]
+Watford= [1.7,1.1]
+Newcastle = [1.7,1.1]
+Norwich = [1.5,1.1]
+
+
+
+
+
+
+
+
+
 
 
