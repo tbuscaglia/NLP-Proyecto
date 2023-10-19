@@ -1,6 +1,6 @@
 import csv
 import pandas as pd
-import numpy as np
+#import numpy as np
 
 data538 = []
 
@@ -43,7 +43,7 @@ with open('C:/Users/tomas/Downloads/E0.csv', 'r') as csv_file:
 
 # Transform data into dataframes: 
 
-columns = ['Date', 'HomeTeam', 'AwayTeam', 'prob1', 'prob2', 'probtie', 'importance1', 'importance2',  'score1', 'score2']
+columns = ['Date', 'HomeTeam', 'AwayTeam', 'prob_homewin', 'prob_awaywin', 'prob_tie', 'importance_home', 'importance_away',  'score_home', 'score_away']
 
 df_bets = pd.DataFrame(dataEPL21_22[1:], columns=dataEPL21_22[0])
 df_spi = pd.DataFrame(data538_3, columns = columns)
@@ -72,14 +72,14 @@ unique_values_bets = df_bets['HomeTeam'].unique()
 unique_values_spi = df_spi['HomeTeam'].unique()
 '''
 
-result = df_bets.merge(df_spi, on=['Date', 'HomeTeam'], how='inner')
+result = df_bets.merge(df_spi, on=['Date', 'HomeTeam', 'AwayTeam'], how='inner')
 
+match_info = result[['Date', 'Time', 'HomeTeam', 'AwayTeam', 'prob_homewin', 'prob_awaywin', 'prob_tie', 'importance_home', 'importance_away',  'score_home', 'score_away']]
 
+#Create gap score ecuation
 
+match_info['R_home'] = (match_info['score_home'] > match_info['score_away']).astype(int) - (match_info['score_home'] < match_info['score_away']).astype(int)
 
-
-
-
-
+match_info['R_away'] = -match_info['R_home']
 
 
