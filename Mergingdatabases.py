@@ -100,14 +100,13 @@ match_info['prob_homewin'] = match_info['prob_homewin'].astype(float)
 match_info['score_home'] = match_info['score_home'].astype(int)
 match_info['score_away'] = match_info['score_away'].astype(int)
 
-match_info['gamma_home'] = (match_info['prob_awaywin'] * match_info['score_home'] - match_info['prob_homewin'] * match_info['score_away']) / (match_info['score_home'] + match_info['score_away'])
 
 unique_values = match_info['HomeTeam'].unique()
 
 
 #Offensive and defensive scores 
 
-lista = [['Man City', 3.0, 0.2], ['Liverpool', 3.0, 0.4], ['Chelsea', 2.5, 0.4], ['Arsenal', 2.2, 0.5], 
+team_scores = [['Man City', 3.0, 0.2], ['Liverpool', 3.0, 0.4], ['Chelsea', 2.5, 0.4], ['Arsenal', 2.2, 0.5], 
          ['Tottenham',2.2,0.6], ['West Ham', 2.1, 0.8], ['Man United', 2.2, 0.7], ['Brighton', 1.9, 0.6], 
          ['Leicester', 2.2, 0.9], ['Wolves', 1.7, 0.5], ['Aston Villa', 2.0, 0.8], 
          ['Crystal Palace', 1.9, 0.8], ['Brentford', 1.8, 0.8], ['Everton', 1.9, 0.9],
@@ -115,18 +114,39 @@ lista = [['Man City', 3.0, 0.2], ['Liverpool', 3.0, 0.4], ['Chelsea', 2.5, 0.4],
          ['Newcastle', 1.7, 1.1], ['Norwich', 1.5, 1.1]]
 
 
+team_scores = pd.DataFrame(team_scores, columns=['Team', 'OffensiveScore', 'DefensiveScore'])
 
+offensive_scores_home = []
+defensive_scores_home = []
+offensive_scores_away = []
+defensive_scores_away = []
 
+for index, row in match_info.iterrows():
+    home_team = row['HomeTeam']
+    away_team = row['AwayTeam']
+    
+    home_team_scores = team_scores[team_scores['Team'] == home_team]
+    away_team_scores = team_scores[team_scores['Team'] == away_team]
+    
+    offensive_scores_home.append(home_team_scores['OffensiveScore'].values[0])
+    defensive_scores_home.append(home_team_scores['DefensiveScore'].values[0])
+    offensive_scores_away.append(away_team_scores['OffensiveScore'].values[0])
+    defensive_scores_away.append(away_team_scores['DefensiveScore'].values[0])
+    
+match_info['off_home'] = offensive_scores_home
+match_info['def_home'] = defensive_scores_home
+match_info['off_away'] = offensive_scores_away
+match_info['def_away'] = defensive_scores_away
 
+match_info['gamma_home'] = (match_info['prob_awaywin'] * match_info['off_home'] - match_info['prob_homewin'] * match_info['def_home']) / (match_info['off_home'] + match_info['def_home'])
+match_info['gamma_away'] = (match_info['prob_homewin'] * match_info['off_away'] - match_info['prob_awaywin'] * match_info['def_away']) / (match_info['off_away'] + match_info['def_away'])
 
+'''
+queda crear el mu_home y mu_away
 
+despues hacer el gap score
 
-
-
-
-
-
-
+'''
 
 
 
