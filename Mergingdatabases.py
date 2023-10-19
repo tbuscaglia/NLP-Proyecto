@@ -107,28 +107,21 @@ unique_values = match_info['HomeTeam'].unique()
 
 #Offensive and defensive scores 
 
-lista = [['Man City', 3.0, 0.2], ['Liverpool', 3.0, 0.4]]
+lista = [['Man City', 3.0, 0.2], ['Liverpool', 3.0, 0.4], ['Chelsea', 2.5, 0.4], ['Arsenal', 2.2, 0.5], 
+         ['Tottenham',2.2,0.6], ['West Ham', 2.1, 0.8], ['Man United', 2.2, 0.7], ['Brighton', 1.9, 0.6], 
+         ['Leicester', 2.2, 0.9], ['Wolves', 1.7, 0.5], ['Aston Villa', 2.0, 0.8], 
+         ['Crystal Palace', 1.9, 0.8], ['Brentford', 1.8, 0.8], ['Everton', 1.9, 0.9],
+         ['Southampton', 1.8, 0.9], ['Leeds',1.9, 1.0], ['Burnley',1.8, 1.0], ['Watford', 1.7, 1.1],
+         ['Newcastle', 1.7, 1.1], ['Norwich', 1.5, 1.1]]
 
 
 
-Chelsea = [2.5, 0.4]
-Arsenal = [2.2, 0.5]
-Tottenham = [2.2,0.6]
-West Ham = [2.1,0.8]
-Man United = [2.2,0.7]
-Brighton = [1.9,0.6]
-Leicester = [2.2, 0.9]
-Wolves = [1.7,0.5]
-Aston Villa = [2.0,0.8]
-Crystal Palace = [1.9,0.8]
-Brentford = [1.8,0.8]
-Everton = [1.9, 0.9]
-Southampton = [1.8,0.9]
-Leeds = [1.9, 1.0]
-Burnley = [1.8,1.0]
-Watford= [1.7,1.1]
-Newcastle = [1.7,1.1]
-Norwich = [1.5,1.1]
+
+
+
+
+
+
 
 
 
