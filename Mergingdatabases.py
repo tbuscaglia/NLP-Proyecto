@@ -3,6 +3,8 @@ import pandas as pd
 import math
 from tqdm import tqdm
 import re
+import os
+from datetime import datetime
 #import numpy as np
 
 data538 = []
@@ -13,7 +15,6 @@ with open('C:/Users/tomas/Downloads/spi_matches (2).csv', 'r') as csv_file:
         data538.append(row)
 data538_1 = [row for row in data538 if row[2] == "2411"]
 
-from datetime import datetime
 
 fecha_inicio = datetime.strptime("2021-08-13", "%Y-%m-%d")
 fecha_fin = datetime.strptime("2022-05-22", "%Y-%m-%d")
@@ -138,6 +139,7 @@ match_info['gap_score_home'] = match_info['mu_home'] * (match_info['gamma_home']
 match_info['gap_score_away'] = match_info['mu_away'] * (match_info['gamma_away'] + match_info['beta_away'])
 
 match_info_clean = match_info[['HomeTeam', 'AwayTeam', 'Unix_start', 'Unix_end', 'gap_score_home', 'gap_score_away']]
+match_info_clean.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Data/MatchInfo.csv", index=False)
 
 #------------------------------------------------------------------------------
 #MERGING REDDIT POSTS INTO A SINGLE .PD
@@ -154,6 +156,7 @@ for team in tqdm(team_names):
     df_team = pd.read_csv(file_path, sep='\t')
     team_data[team] = df_team
     df_names.append(re.sub(' ', '_', team))
+    os.remove(file_path)
 
 #We create a list, containing all the dfs for each team, and adding a 3rd column that identifies the team
 team_dfs = []
@@ -164,6 +167,7 @@ for name, team in zip(df_names, team_data):
 #Finally, we concatenate all the dfs into a single one
 reddit = pd.concat(team_dfs, ignore_index=True)
 reddit = reddit[['Unix Date', 'Comment', 'Team']]
+reddit.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Data/reddit.csv", index=False)
 
 '''
 print(len(reddit))
