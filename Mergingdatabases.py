@@ -1,6 +1,8 @@
 import csv
 import pandas as pd
 import math
+from tqdm import tqdm
+import re
 #import numpy as np
 
 data538 = []
@@ -136,3 +138,34 @@ match_info['gap_score_home'] = match_info['mu_home'] * (match_info['gamma_home']
 match_info['gap_score_away'] = match_info['mu_away'] * (match_info['gamma_away'] + match_info['beta_away'])
 
 match_info_clean = match_info[['HomeTeam', 'AwayTeam', 'Unix_start', 'Unix_end', 'gap_score_home', 'gap_score_away']]
+
+#------------------------------------------------------------------------------
+
+team_names = ['Man United', 'Chelsea', 'Everton', 'Leicester',
+  'Norwich', 'Newcastle', 'Tottenham', 'Liverpool', 'Aston Villa',
+ 'Crystal Palace', 'Leeds', 'Man City', 'Brighton', 'Southampton', 'Wolves',
+ 'Arsenal', 'West Ham']
+
+team_data = {} 
+df_names = []
+
+for team in tqdm(team_names):
+    file_path = f"C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/NLP-Proyecto/Datos limpios/{team}.csv"
+    df_team = pd.read_csv(file_path, sep='\t')
+    team_data[team] = df_team
+    df_names.append(re.sub(' ', '_', team))
+    
+for name, team in zip(df_names, team_data):
+    locals()[f'{name}_df'] = team_data[team]
+
+'''
+1 - agregar columna con nombre del equipo a cada df
+2 - unir dataframes en uno grande
+'''
+
+
+
+
+
+
+
