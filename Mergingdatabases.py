@@ -57,6 +57,13 @@ result = df_bets.merge(df_spi, on=['Date', 'HomeTeam', 'AwayTeam'], how='inner')
 
 match_info = result[['Date', 'Time', 'HomeTeam', 'AwayTeam', 'prob_homewin', 'prob_awaywin', 'prob_tie', 'importance_home', 'importance_away',  'score_home', 'score_away']]
 
+match_info['prob_awaywin'] = match_info['prob_awaywin'].astype(float)
+match_info['prob_homewin'] = match_info['prob_homewin'].astype(float)
+match_info['importance_home'] = match_info['importance_home'].astype(float)
+match_info['importance_away'] = match_info['importance_away'].astype(float)
+match_info['score_home'] = match_info['score_home'].astype(int)
+match_info['score_away'] = match_info['score_away'].astype(int)
+
 #Convert date and time to unix time
 
 combined_datetime = match_info['Date'] + ' ' + match_info['Time']
@@ -71,18 +78,19 @@ match_info['Unix_end'] = match_info['UnixTimestamp'] + 3600
 
 #Create gap score ecuation
 
+match_info['gd_home'] = match_info['score_home'] - match_info['score_away']
+match_info['gd_away'] = -match_info['gd_home']
+
+match_info['big_win_home'] = (match_info['gd_home'] > 2).astype(int)
+match_info['big_loss_away'] = -match_info['big_win_home']
+match_info['big_win_away'] = (match_info['gd_away'] > 2).astype(int)
+match_info['big_loss_home'] = -match_info['big_win_away']
+
 match_info['R_home'] = (match_info['score_home'] > match_info['score_away']).astype(int) - (match_info['score_home'] < match_info['score_away']).astype(int)
 match_info['R_away'] = -match_info['R_home']
 
-match_info['beta_home'] = 0.2 * match_info['R_home']
-match_info['beta_away'] = 0.2 * match_info['R_away']
-
-match_info['prob_awaywin'] = match_info['prob_awaywin'].astype(float)
-match_info['prob_homewin'] = match_info['prob_homewin'].astype(float)
-match_info['importance_home'] = match_info['importance_home'].astype(float)
-match_info['importance_away'] = match_info['importance_away'].astype(float)
-match_info['score_home'] = match_info['score_home'].astype(int)
-match_info['score_away'] = match_info['score_away'].astype(int)
+match_info['beta_home'] = 0.2 * (match_info['R_home'] + 0.5 * (match_info['big_win_home'] + match_info['big_loss_home']))
+match_info['beta_away'] = 0.2 * (match_info['R_away'] + 0.5 * (match_info['big_win_away'] + match_info['big_loss_away']))
 
 #Offensive and defensive scores 
 
@@ -127,4 +135,4 @@ match_info['mu_away'] = match_info['importance_away'].apply(lambda x: math.exp((
 match_info['gap_score_home'] = match_info['mu_home'] * (match_info['gamma_home'] + match_info['beta_home'])
 match_info['gap_score_away'] = match_info['mu_away'] * (match_info['gamma_away'] + match_info['beta_away'])
 
-match_info = match_info[['HomeTeam', 'AwayTeam', 'Unix_start', 'Unix_end', 'gap_score_home', 'gap_score_away']]
+match_info_clean = match_info[['HomeTeam', 'AwayTeam', 'Unix_start', 'Unix_end', 'gap_score_home', 'gap_score_away']]
