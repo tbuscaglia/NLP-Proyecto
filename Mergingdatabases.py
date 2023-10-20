@@ -121,10 +121,10 @@ match_info['gamma_home'] = (match_info['prob_awaywin'] * match_info['off_home'] 
 match_info['gamma_away'] = (match_info['prob_homewin'] * match_info['off_away'] - match_info['prob_awaywin'] * match_info['def_away']) / (match_info['off_away'] + match_info['def_away'])
 
 
-match_info['mu_home'] = match_info['importance_home'].apply(lambda x: math.exp(x/100 - 1))
-match_info['mu_away'] = match_info['importance_away'].apply(lambda x: math.exp(x/100 - 1))
+match_info['mu_home'] = match_info['importance_home'].apply(lambda x: math.exp((x/100) - 1))
+match_info['mu_away'] = match_info['importance_away'].apply(lambda x: math.exp((x/100) - 1))
 
 match_info['gap_score_home'] = match_info['mu_home'] * (match_info['gamma_home'] + match_info['beta_home'])
 match_info['gap_score_away'] = match_info['mu_away'] * (match_info['gamma_away'] + match_info['beta_away'])
 
-
+match_info = match_info[['HomeTeam', 'AwayTeam', 'Unix_start', 'Unix_end', 'gap_score_home', 'gap_score_away']]
