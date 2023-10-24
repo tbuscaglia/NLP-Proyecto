@@ -31,6 +31,7 @@ def analyze_sentiment(text):
             return 'Neutral'
     else:
         return 'Neutral'
+    
 for team in team_names:
     team_data[team]['sentiments'] = team_data[team]['Comment'].progress_apply(analyze_sentiment)
 
@@ -93,7 +94,6 @@ from stop_words import get_stop_words
 nltk.download('punkt')
 nltk.download('wordnet')
 
-
 english_stop_words = set(stopwords.words('english'))
 
 # Load the CSV file with your song data (replace with your data file)
@@ -126,6 +126,7 @@ for artist in data:
 '''
 
 def comment_processing(text):
+    processed_text = ""
     if isinstance(text, str): 
         text = text.lower()
         words = nltk.word_tokenize(text)
@@ -134,14 +135,64 @@ def comment_processing(text):
         words = [lemmatizer.lemmatize(word) for word in words]
         processed_text = ' '.join(words)
     return processed_text
-  
-for team_name, team_df in team_data.items():
-    if 'Comment' in team_df:
-        team_df['Comment'] = team_df['Comment'].apply(comment_processing)
-      
-match_info_tfidf['processed_text'] = match_info_tfidf['text'].apply(comment_processing)
 
-tfidf_matrix = tfidf_vectorizer.fit_transform(match_info_tfidf['processed_text'])
+Leicester = team_data['Leicester']
+
+Leicester['Processed Comment'] = Leicester['Comment'].apply(comment_processing)
+
+
+for team in team_names:
+    team_data[team]['Processed Comment'] = team_data[team]['Comment'].progress_apply(comment_processing)
+
+
+output_directory = "C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/Datos limpios/processed comments/"
+
+# Iterate through each team
+for team in tqdm(team_names):
+    team_df = team_data[team]
+    
+    # Define the output file path for this team
+    output_file_path = output_directory + f"{team}.csv"
+    
+    # Save the entire DataFrame to a CSV file
+    team_df.to_csv(output_file_path, index=False, encoding='utf-8')
+
+
+
+
+tfidf_matrix = tfidf_vectorizer.fit_transform(Leicester['Processed Comment'])
+
+
+
+
+def postmatch_tfidf(team, time, team_data, tfidf_vectorizer):
+    if team in ['Brentford', 'Watford', 'Burnley']:
+        return None
+    else:
+        comments = team_data[team][(team_data[team]['Unix Date'] > time) & (team_data[team]['Unix Date'] < (time + 21600))]['Processed Comment']
+        tfidf_matrix = tfidf_vectorizer.fit_transform(comments)
+        return tfidf_matrix
+
+
+
+
+
+
+
+
+'''
+def postmatch_tfidf(team, time):
+    if team in ['Brentford', 'Watford', 'Burnley']:
+        return None
+    else: 
+        for index, row in team_data[team].iterrows(): 
+            if row['Unix Date']> time and row['Unix Date']< (time + 21600):
+                tfidf_matrix = tfidf_vectorizer.fit_transform('')
+ 
+  '''  
+
+
+#tfidf_matrix = tfidf_vectorizer.fit_transform(match_info_tfidf['processed_text'])
 
 '''
 # Perform TF-IDF analysis
