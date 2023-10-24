@@ -11,6 +11,7 @@ for team in tqdm(team_names):
     file_path = f"/Users/julianandelsman/Desktop/NLP/Final project/Data/{team}.csv"
     df_team = pd.read_csv(file_path, sep='\t')
     team_data[team] = df_team
+    
 MatchInfo = pd.read_csv('/Users/julianandelsman/Desktop/NLP/Final project/Data/MatchInfo.csv')
 
 ##VADER##
@@ -78,7 +79,7 @@ MatchInfo.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Data/MatchInf
 
 #------------------------------------------------------------------------------
 ## TF-IDF ##
-'''
+
 import nltk
 nltk.download('stopwords')
 from nltk.corpus import stopwords
@@ -89,41 +90,65 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from stop_words import get_stop_words
 
-# Download necessary NLTK data (if not already downloaded)
 nltk.download('punkt')
 nltk.download('wordnet')
 
-# Obtén las stopwords en inglés de NLTK
+
 english_stop_words = set(stopwords.words('english'))
 
 # Load the CSV file with your song data (replace with your data file)
-data = {}
-with open('english_songs.csv') as csv_file:
-    csv_reader = csv.reader(csv_file)
-    header = next(csv_reader)  # Assuming the first row contains column headers
-    for row in csv_reader:
-        artist = row[0]  # Adjust column indices to match your file
-        song = row[1]
-        lyrics = row[2]
-        if artist not in data:
-            data[artist] = []
-        data[artist].append(lyrics)
 
+match_info_tfidf = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/MatchInfo.csv")
+
+#'''
+team_names = ['Man United', 'Chelsea', 'Everton', 'Leicester',
+  'Norwich', 'Newcastle', 'Tottenham', 'Liverpool', 'Aston Villa',
+ 'Crystal Palace', 'Leeds', 'Man City', 'Brighton', 'Southampton', 'Wolves',
+ 'Arsenal', 'West Ham']
+team_data = {}
+for team in tqdm(team_names):
+    file_path = f"C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/Datos limpios/{team}.csv"
+    df_team = pd.read_csv(file_path, sep='\t')
+    team_data[team] = df_team
+
+#'''
 # Initialize the TF-IDF vectorizer for text
 
-tfidf_vectorizer = TfidfVectorizer(max_df=0.85, max_features=1000, stop_words=combined_stop_words)
+tfidf_vectorizer = TfidfVectorizer(max_df=0.85, max_features=1000, stop_words=english_stop_words)
 
 # Lemmatize and preprocess the lyrics data
 lemmatizer = WordNetLemmatizer()
+
+'''
 tfidf_data = {}
 for artist in data:
     tfidf_data[artist] = ' '.join([lemmatizer.lemmatize(word.lower()) for lyrics in data[artist] for word in word_tokenize(lyrics) if word.isalpha()])
+'''
 
+def comment_processing(text):
+    if isinstance(text, str): 
+        text = text.lower()
+        words = nltk.word_tokenize(text)
+        stop_words = set(stopwords.words('english'))
+        words = [word for word in words if word not in stop_words]
+        words = [lemmatizer.lemmatize(word) for word in words]
+        processed_text = ' '.join(words)
+    return processed_text
+  
+for team_name, team_df in team_data.items():
+    if 'Comment' in team_df:
+        team_df['Comment'] = team_df['Comment'].apply(comment_processing)
+      
+match_info_tfidf['processed_text'] = match_info_tfidf['text'].apply(comment_processing)
+
+tfidf_matrix = tfidf_vectorizer.fit_transform(match_info_tfidf['processed_text'])
+
+'''
 # Perform TF-IDF analysis
 tfidf_matrix = tfidf_vectorizer.fit_transform(tfidf_data.values())
 tfidf_feature_names = tfidf_vectorizer.get_feature_names_out()
 tfidf_df = pd.DataFrame(data=tfidf_matrix.toarray(), columns=tfidf_feature_names, index=tfidf_data.keys())
-
+'''
 # Create a WordCloud from aggregated TF-IDF values
 agg_tfidf = tfidf_df.sum().sort_values(ascending=False)
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(agg_tfidf)
@@ -135,4 +160,4 @@ plt.axis('off')
 plt.title("TF-IDF Values for english songs")
 wordcloud.to_file('wordcloud_en.png')
 plt.show()
-'''
+
