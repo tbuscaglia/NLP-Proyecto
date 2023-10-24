@@ -9,11 +9,11 @@ team_names = ['Man United', 'Chelsea', 'Everton', 'Leicester',
  'Arsenal', 'West Ham']
 team_data = {}
 for team in tqdm(team_names):
-    file_path = f"/Users/julianandelsman/Desktop/NLP/Final project/Data/{team}.csv"
+    file_path = f"C:\Users\tomas\Documents\UdeSA\Tercer Año\Segundo Cuatri\NLP\Datos Proyecto\Datos limpios\processed comments\Crystal Palace.csv"{team}.csv"
     df_team = pd.read_csv(file_path, sep='\t')
     team_data[team] = df_team
     
-MatchInfo = pd.read_csv('/Users/julianandelsman/Desktop/NLP/Final project/Data/MatchInfo.csv')
+MatchInfo = pd.read_csv("C:/Users/tomas/Downloads/MatchInfo.csv")
 
 ##VADER##
 # Start VADER
@@ -90,7 +90,6 @@ from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
-from stop_words import get_stop_words
 
 nltk.download('punkt')
 nltk.download('wordnet')
