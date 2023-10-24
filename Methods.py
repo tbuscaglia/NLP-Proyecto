@@ -1,5 +1,6 @@
 import pandas as pd
 from tqdm import tqdm
+import numpy as np
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 tqdm.pandas()
 team_names = ['Man United', 'Chelsea', 'Everton', 'Leicester',
@@ -158,20 +159,46 @@ for team in tqdm(team_names):
     team_df.to_csv(output_file_path, index=False, encoding='utf-8')
 
 
+#tfidf_matrix = tfidf_vectorizer.fit_transform(Leicester['Processed Comment'])
 
+match_info_tfidf = match_info_tfidf[['HomeTeam', 'AwayTeam', 'Unix_end', 'gap_score_home','gap_score_away']]
 
-tfidf_matrix = tfidf_vectorizer.fit_transform(Leicester['Processed Comment'])
+quantiles = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
+gap_scores_combined = np.concatenate([match_info_tfidf['gap_score_home'], match_info_tfidf['gap_score_away']])
 
+cuantiles = np.quantile(gap_scores_combined, quantiles)
 
+def encontrar_cuantil(gapscore):
+    for i in range(len(cuantiles)):
+        if gapscore <= cuantiles[i]:
+            return i
+    return len(cuantiles) - 1
 
-def postmatch_tfidf(team, time, team_data, tfidf_vectorizer):
-    if team in ['Brentford', 'Watford', 'Burnley']:
-        return None
-    else:
-        comments = team_data[team][(team_data[team]['Unix Date'] > time) & (team_data[team]['Unix Date'] < (time + 21600))]['Processed Comment']
-        tfidf_matrix = tfidf_vectorizer.fit_transform(comments)
-        return tfidf_matrix
+#print(encontrar_cuantil(0.15))
+comentarios_cuantil = {}
+
+def cuantile_text(team, time, gap):
+    cuantil = encontrar_cuantil(gap)
+    if cuantil not in comentarios_cuantil:
+        comentarios_cuantil[cuantil] = [] 
+    comentarios = []
+    for index, row in team_data[team].iterrows():      
+        if row['Unix Date'] > time and row['Unix Date'] < (time + 21600):
+            palabras = [palabra for palabra in row['Processed Comment'].split() if palabra.isalpha()]
+            comentario_filtrado = ' '.join(palabras)
+            comentarios.append(comentario_filtrado)  
+    comentarios_cuantil[cuantil].append(' '.join(comentarios))
+    return comentarios_cuantil            
+ 
+     
+for index, row in tqdm(match_info_tfidf.iterrows()):
+    if row['HomeTeam'] not in ['Brentford', 'Watford', 'Burnley']:
+        cuantile_text(row['HomeTeam'], row['Unix_end'], row['gap_score_home'])
+    if row['AwayTeam'] not in ['Brentford', 'Watford', 'Burnley']:
+        cuantile_text(row['AwayTeam'], row['Unix_end'], row['gap_score_away'])
+        
+
 
 
 
@@ -181,6 +208,15 @@ def postmatch_tfidf(team, time, team_data, tfidf_vectorizer):
 
 
 '''
+def postmatch_tfidf(team, time, team_data, tfidf_vectorizer):
+    if team in ['Brentford', 'Watford', 'Burnley']:
+        return None
+    else:
+        comments = team_data[team][(team_data[team]['Unix Date'] > time) & (team_data[team]['Unix Date'] < (time + 21600))]['Processed Comment']
+        tfidf_matrix = tfidf_vectorizer.fit_transform(comments)
+        return tfidf_matrix
+
+
 def postmatch_tfidf(team, time):
     if team in ['Brentford', 'Watford', 'Burnley']:
         return None
