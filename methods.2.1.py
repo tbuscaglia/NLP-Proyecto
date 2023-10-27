@@ -14,7 +14,7 @@ lemmatizer = WordNetLemmatizer()
 
 #Opening files (Match info and reddits)
 
-MatchInfo = pd.read_csv('./Data/MatchInfo.csv')
+MatchInfo = pd.read_csv('/Users/julianandelsman/Desktop/NLP/Final project/Data/MatchInfo.csv')
 
 team_names = ['Man United', 'Chelsea', 'Everton', 'Leicester',
   'Norwich', 'Newcastle', 'Tottenham', 'Liverpool', 'Aston Villa',
@@ -22,7 +22,7 @@ team_names = ['Man United', 'Chelsea', 'Everton', 'Leicester',
  'Arsenal', 'West Ham']
 team_data = {}
 for team in team_names:
-    file_path = f"./Data/{team}.csv"
+    file_path = f"/Users/julianandelsman/Desktop/NLP/Final project/Data/{team}.csv"
     df_team = pd.read_csv(file_path, sep='\t')
     team_data[team] = df_team
     
@@ -91,9 +91,6 @@ for team in data_team_time:
         texts = data_team_time[team][time]
         team_cuantile[gap][team].extend(texts)
 
-#from stop_words import get_stop_words
-#from wordcloud import WordCloud
-
 def comment_processing(text_list):
     processed_texts = []
     for text in text_list:
@@ -131,3 +128,44 @@ tfidf_feature_names = tfidf_vectorizer.get_feature_names_out()
 tfidf_df = pd.DataFrame(data=tfidf_matrix.toarray(), columns=tfidf_feature_names, index=text_by_quantile.keys())
 
 tfidf_df.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Data/TDIDF.csv", index=True)
+
+
+#Paso de Df a Dict
+ 
+diccionarios = {}
+
+# Recorre las filas del DataFrame y crea un diccionario por fila
+for index, fila in tfidf_df.iterrows():
+    diccionario_fila = fila.to_dict()
+    # Agrega el diccionario de la fila al diccionario final con el nombre de la fila como clave
+    diccionarios[index] = diccionario_fila
+
+i = 0
+result = {}
+for i in range(1, len(diccionarios) + 1):
+    claves_top10 = sorted(diccionarios[i], key=diccionarios[i].get, reverse=True)[:10]
+    resultado = [(clave, diccionarios[i][clave]) for clave in claves_top10]
+    
+    # Crear un DataFrame para este 'i'
+    df = pd.DataFrame(resultado, columns=['Word', 'TF-IDF Score'])
+    
+    # Agregar la columna 'Rank' al DataFrame
+    result[i] = df
+    
+
+for i in range (1, 11):
+    result[i].to_csv(f'/Users/julianandelsman/Desktop/NLP/Final project/Data/Tf-Idf{i}.csv', index=True)
+'''
+from wordcloud import WordCloud
+
+agg_tfidf = tfidf_df.sum().sort_values(ascending=False)
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(agg_tfidf)
+
+# Display the WordCloud
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.title("TF-IDF Values")
+wordcloud.to_file('wordcloud_en.png')
+plt.show()
+'''
