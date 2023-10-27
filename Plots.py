@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
+from tqdm import tqdm
 
 MatchInfo = pd.read_csv("C:/Users/tomas/Downloads/MatchInfo.csv")
 
@@ -83,6 +84,29 @@ plt.title('Gap Score and (%) of Negative Comments for Away Teams')
 plt.legend()
 
 plt.show()
+
+#------------------------------------------------------------------------------
+
+# Amount of comments per day for top 2 teams
+
+man_united = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/Datos limpios/processed comments/Man United.csv")
+liverpool = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/Datos limpios/processed comments/Liverpool.csv")
+
+manu = man_united['Unix Date'].tolist()
+liv = liverpool['Unix Date'].tolist()
+
+
+days = {}
+
+start  = 1628650800
+
+for date in liv:
+    day = (date - start) // 86400  
+    if day not in days:
+        days[day] = 0
+    days[day] += 1
+ 
+liv_df = pd.DataFrame(list(days.items()), columns=['Day', 'Count'])   
 
 
 
