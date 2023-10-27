@@ -190,3 +190,55 @@ plt.plot(city_df['Day'], rolling_trend, color='r', linestyle='--', label='7 day 
 plt.legend()
 plt.tight_layout()
 plt.show()
+
+#------------------------------------------------------------------------------
+
+sent_change = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/Sentchange.csv")
+
+sent_change = sent_change.dropna()
+
+# Calculate Z-scores for your data
+z_scores = np.abs(stats.zscore(sent_change['Percentage change in compound score']))
+
+# Define a threshold for the Z-score beyond which data points are considered outliers
+threshold = 3  # You can adjust this threshold as needed
+
+# Remove outliers based on the threshold
+filtered_data = sent_change[(z_scores < threshold)]
+
+# Extract x and y from the filtered data
+x = filtered_data['Gap Score']
+y = filtered_data['Percentage change in compound score']
+
+# Perform linear regression on the filtered data
+slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+regression_line = slope * x + intercept
+
+# Set the Y-axis limits
+y_min_limit = -400  # Define your desired minimum limit
+y_max_limit = 400  # Define your desired maximum limit
+plt.ylim(y_min_limit, y_max_limit)
+
+# Plot the regression line and data points
+plt.scatter(x, y, label='Data', s=10)
+plt.plot(x, regression_line, color='red', label='Regression Line')
+plt.xlabel('Gap Score')
+plt.ylabel('Percentage change in compound score')
+plt.title('Percentage change in compound score')
+plt.legend()
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
