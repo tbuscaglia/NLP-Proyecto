@@ -88,7 +88,7 @@ for team in team_names:
             if isinstance(data_team_time[team][time][i], str):
                 compound_sum += analyzer.polarity_scores(data_team_time[team][time][i])['compound']
         Pom_sentiment[team][time] = compound_sum/len(data_team_time[team][time])
-print(team_played['Man United'])
+print(Pom_sentiment['Man United'])
 
 #---------#
 
@@ -119,8 +119,6 @@ for team in team_names:
         if len(data_team_time_pre[team][time])>0:
             Prem_sentiment[team][time] = compound_sum/len(data_team_time_pre[team][time])
 
-print(Prem_sentiment['Norwich'][1652301900])
-print(team_gap['Leicester'][1646487000])
 sent_change = {}
 for team in team_names:
     sent_change[team] = {}
@@ -132,7 +130,6 @@ for team in team_names:
             if Prem_sentiment[team][time] != 0:
                 sent_change[team][time][gap] = ((Pom_sentiment[team][time] - Prem_sentiment[team][time])/Prem_sentiment[team][time])*100
 
-
 list= []
 for team, time_data in sent_change.items():
     for time, gap_data in time_data.items():
@@ -142,49 +139,147 @@ for team, time_data in sent_change.items():
 SentChange = pd.DataFrame(list, columns=['Team', 'Match End', 'Gap Score', 'Percentage change in compound score'])
 SentChange.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Data/Sentchange.csv", index=True)
 
+
 print(SentChange.head())
-'''
-def positive_calc(team, time):
-    positive_count = 0
-    total_count = 0
-    if team in ['Brentford', 'Watford', 'Burnley']:
-        return None
-    else: 
-        for index, row in team_data[team].iterrows(): 
-            if row['Unix Date']> time and row['Unix Date']< (time + 21600):
-                total_count += 1
-                if row['sentiments'] == "Positivo":
-                    positive_count +=1
-    if total_count > 0:
-        perc_positive = (positive_count/total_count)*100
-        return perc_positive
-    else: 
-        return None
 
-MatchInfo['Local_positive'] = MatchInfo.progress_apply(lambda row: positive_calc(row['HomeTeam'], row['Unix_end']), axis=1)
-MatchInfo['Away_positive'] = MatchInfo.progress_apply(lambda row: positive_calc(row['AwayTeam'], row['Unix_end']), axis=1)
-def negative_calc(team, time):
-    negative_count = 0
-    total_count = 0
-    if team in ['Brentford', 'Watford', 'Burnley']:
-        return None
-    else: 
-        for index, row in team_data[team].iterrows(): 
-            if row['Unix Date']> time and row['Unix Date']< (time + 21600):
-                total_count += 1
-                if row['sentiments'] == "Negativo":
-                    negative_count +=1
-    if total_count > 0:
-        perc_negative = (negative_count/total_count)*100
-        return perc_negative
-    else: 
-        return None
-MatchInfo['Local_negative'] = MatchInfo.progress_apply(lambda row: negative_calc(row['HomeTeam'], row['Unix_end']), axis=1)
-MatchInfo['Away_negative'] = MatchInfo.progress_apply(lambda row: negative_calc(row['AwayTeam'], row['Unix_end']), axis=1)
-print(MatchInfo.head())
-MatchInfo['Local_neutral'] = 100 - MatchInfo['Local_positive'] - MatchInfo['Local_negative']
-MatchInfo['Away_neutral'] = 100 - MatchInfo['Away_positive'] - MatchInfo['Away_negative']
-MatchInfo.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Data/MatchInfo.csv", index=False)
-'''
+sent_class_post = {}
+for team in tqdm(team_names):
+    sent_class_post[team] = {}
+    for time in tqdm (team_played[team]):
+        sent_class_post[team][time] = {}
+        positive_count = 0
+        negative_count = 0
+        for comment in data_team_time[team][time]:
+            sent =  analyze_sentiment(comment)
+            if sent == "Positivo":
+                 positive_count +=1
+            if sent == "Negativo":
+                 negative_count +=1
+        sent_class_post[team][time] =[(positive_count/len(data_team_time[team][time]))*100 , (negative_count/len(data_team_time[team][time]))*100, 100 - (negative_count/len(data_team_time[team][time]))*100 - (positive_count/len(data_team_time[team][time]))*100]
 
-#------------------------------------------------------------------------------
+prematch = 0
+for team in tqdm(team_names):
+    for time in tqdm (team_played[team]):
+        prematch += len(data_team_time_pre[team][time])
+print(prematch)
+
+sent_class_pre = {}
+for team in tqdm(team_names):
+    sent_class_pre[team] = {}
+    for time in tqdm (team_played[team]):
+        sent_class_pre[team][time] = {}
+        positive_count = 0
+        negative_count = 0
+        for comment in data_team_time_pre[team][time]:
+            sent =  analyze_sentiment(comment)
+            if sent == "Positivo":
+                 positive_count +=1
+            if sent == "Negativo":
+                 negative_count +=1
+        if len(data_team_time_pre[team][time])>0:
+            sent_class_pre[team][time] =[(positive_count/len(data_team_time_pre[team][time]))*100 , (negative_count/len(data_team_time_pre[team][time]))*100, 100 - (negative_count/len(data_team_time_pre[team][time]))*100 - (positive_count/len(data_team_time_pre[team][time]))*100]
+
+print(sent_class_pre["Norwich"][1651334400])
+
+pos_change = {}
+for team in team_names:
+    pos_change[team] = {}
+    for time in team_played[team]:
+        gap = team_gap[team][time]
+        pos_change[team][time]= {}
+        pos_change[team][time][gap] = {}
+        if len(data_team_time_pre[team][time]) > 0 and len(data_team_time[team][time])>0:
+                pos_change[team][time][gap] = (sent_class_post[team][time][0] - sent_class_pre[team][time][0])
+list= []
+for team, time_data in pos_change.items():
+    for time, gap_data in time_data.items():
+        for gap, value in gap_data.items():
+            list.append((team, time, gap, value))
+PosChange = pd.DataFrame(list, columns=['Team', 'Match End', 'Gap Score', 'Change in % positive comments'])
+PosChange.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Results/PosChange.csv", index=True)
+
+neg_change = {}
+for team in team_names:
+    neg_change[team] = {}
+    for time in team_played[team]:
+        gap = team_gap[team][time]
+        neg_change[team][time]= {}
+        neg_change[team][time][gap] = {}
+        if len(data_team_time_pre[team][time]) > 0 and len(data_team_time[team][time])>0:
+                neg_change[team][time][gap] = (sent_class_post[team][time][1] - sent_class_pre[team][time][1])
+list= []
+for team, time_data in neg_change.items():
+    for time, gap_data in time_data.items():
+        for gap, value in gap_data.items():
+            list.append((team, time, gap, value))
+NegChange = pd.DataFrame(list, columns=['Team', 'Match End', 'Gap Score', 'Change in % negative comments'])
+NegChange.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Results/NegChange.csv", index=True)
+
+neu_change = {}
+for team in team_names:
+    neu_change[team] = {}
+    for time in team_played[team]:
+        gap = team_gap[team][time]
+        neu_change[team][time]= {}
+        neu_change[team][time][gap] = {}
+        if len(data_team_time_pre[team][time]) > 0 and len(data_team_time[team][time])>0:
+                neu_change[team][time][gap] = (sent_class_post[team][time][2] - sent_class_pre[team][time][2])
+list= []
+for team, time_data in neu_change.items():
+    for time, gap_data in time_data.items():
+        for gap, value in gap_data.items():
+            list.append((team, time, gap, value))
+NeuChange = pd.DataFrame(list, columns=['Team', 'Match End', 'Gap Score', 'Change in % negative comments'])
+NeuChange.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Results/NeuChange.csv", index=True)
+
+pos = {}
+for team in team_names:
+    pos[team] = {}
+    for time in team_played[team]:
+        gap = team_gap[team][time]
+        pos[team][time]= {}
+        pos[team][time][gap] = {}
+        if len(data_team_time_pre[team][time]) > 0 and len(data_team_time[team][time])>0:
+                pos[team][time][gap] = (sent_class_post[team][time][0])
+list= []
+for team, time_data in pos.items():
+    for time, gap_data in time_data.items():
+        for gap, value in gap_data.items():
+            list.append((team, time, gap, value))
+Positive = pd.DataFrame(list, columns=['Team', 'Match End', 'Gap Score', '% Positive Comments'])
+Positive.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Results/POS.csv", index=True)
+
+
+neg = {}
+for team in team_names:
+    neg[team] = {}
+    for time in team_played[team]:
+        gap = team_gap[team][time]
+        neg[team][time]= {}
+        neg[team][time][gap] = {}
+        if len(data_team_time_pre[team][time]) > 0 and len(data_team_time[team][time])>0:
+                neg[team][time][gap] = (sent_class_post[team][time][1])
+list= []
+for team, time_data in neg.items():
+    for time, gap_data in time_data.items():
+        for gap, value in gap_data.items():
+            list.append((team, time, gap, value))
+Negative = pd.DataFrame(list, columns=['Team', 'Match End', 'Gap Score', '% Negative Comments'])
+Negative.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Results/NEG.csv", index=True)
+
+neu = {}
+for team in team_names:
+    neu[team] = {}
+    for time in team_played[team]:
+        gap = team_gap[team][time]
+        neu[team][time]= {}
+        neu[team][time][gap] = {}
+        if len(data_team_time_pre[team][time]) > 0 and len(data_team_time[team][time])>0:
+                neu[team][time][gap] = (sent_class_post[team][time][2])
+list= []
+for team, time_data in neu.items():
+    for time, gap_data in time_data.items():
+        for gap, value in gap_data.items():
+            list.append((team, time, gap, value))
+Neutral = pd.DataFrame(list, columns=['Team', 'Match End', 'Gap Score', '% Neutral Comments'])
+Neutral.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Results/NEU.csv", index=True)
