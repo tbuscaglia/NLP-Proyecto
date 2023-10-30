@@ -67,6 +67,7 @@ for index, row in tqdm.tqdm(match_info_tfidf.iterrows()):
             team_played[team] = []
         team_played[team].append(match_time)
 
+
 data_team_time = {}
 for team in team_played:
     data_team_time[team] = {}
@@ -79,6 +80,7 @@ for team in team_played:
             # Find the corresponding match start time for the comment
             comment_start = next(item[0] for item in match_starts if item[0] <= row_2['Unix Date'] <= item[1])
             data_team_time[team][comment_start].append(row_2['Comment'])
+
 
 team_cuantile = {}
 for team in data_team_time:
@@ -128,7 +130,6 @@ tfidf_feature_names = tfidf_vectorizer.get_feature_names_out()
 tfidf_df = pd.DataFrame(data=tfidf_matrix.toarray(), columns=tfidf_feature_names, index=text_by_quantile.keys())
 
 tfidf_df.to_csv("/Users/julianandelsman/Desktop/NLP/Final project/Data/TDIDF.csv", index=True)
-
 
 #Paso de Df a Dict
  
