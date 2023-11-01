@@ -356,6 +356,8 @@ plt.title('Gap Score and Change in % of Negative Comments')
 plt.legend()
 
 plt.show()
+r_squared = r_value ** 2
+print(f'R-squared: {r_squared:.2f}')
 
 #------------------------------------------------------------------------------
 
