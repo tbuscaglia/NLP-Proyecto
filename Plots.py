@@ -4,34 +4,22 @@ from scipy import stats
 from tqdm import tqdm
 import numpy as np
 
-MatchInfo = pd.read_csv("C:/Users/tomas/Downloads/MatchInfo.csv")
+'''
+Gap Score vs Percent of Positive Comments
+'''
+positive_data = pd.read_csv('C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/POS.csv')
 
-# Local Positive
+positive_data = positive_data.dropna(subset=['Gap Score', '% Positive Comments'])
 
-MatchInfo_plot = MatchInfo.dropna(subset=['gap_score_home', 'Local_positive'])
 
-x = MatchInfo_plot['gap_score_home']
-y = MatchInfo_plot['Local_positive']
+mask = positive_data ['% Positive Comments'].str.contains('{}')
 
-slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+positive_data  = positive_data [~mask]
 
-regression_line = slope * x + intercept
+positive_data ['% Positive Comments'] = positive_data ['% Positive Comments'].astype(float)
 
-plt.scatter(x, y, label='Data', s=10)
-plt.plot(x, regression_line, color='red', label='Regression Line')
-plt.xlabel('Gap Score Home')
-plt.ylabel('Local Positive')
-plt.title('Gap Score and (%) of Positive Comments for Home Teams')
-plt.legend()
-
-plt.show()
-
-# Local Negative
-
-MatchInfo_plot = MatchInfo.dropna(subset=['gap_score_home', 'Local_negative'])
-
-x = MatchInfo_plot['gap_score_home']
-y = MatchInfo_plot['Local_negative']
+x = positive_data['Gap Score']
+y = positive_data['% Positive Comments']
 
 slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
 
@@ -39,19 +27,66 @@ regression_line = slope * x + intercept
 
 plt.scatter(x, y, label='Data', s=10)
 plt.plot(x, regression_line, color='red', label='Regression Line')
-plt.xlabel('Gap Score Home')
-plt.ylabel('Local Negative')
-plt.title('Gap Score and (%) of Negative Comments for Home Teams')
+plt.xlabel('Gap Score')
+plt.ylabel('% of Positive Comments')
+plt.title('Gap Score and (%) of Positive Comments')
 plt.legend()
 
 plt.show()
 
-# Away Positive
+r_squared = r_value ** 2
+print(f'R-squared: {r_squared:.2f}')
 
-MatchInfo_plot = MatchInfo.dropna(subset=['gap_score_away', 'Away_positive'])
+'''
+Gap Score vs Percent of Neutral Comments
+'''
+neutral_data = pd.read_csv('C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/NEU.csv')
 
-x = MatchInfo_plot['gap_score_away']
-y = MatchInfo_plot['Away_positive']
+neutral_data  = neutral_data .dropna(subset=['Gap Score', '% Neutral Comments'])
+
+
+mask = neutral_data  ['% Neutral Comments'].str.contains('{}')
+
+neutral_data   = neutral_data  [~mask]
+
+neutral_data  ['% Neutral Comments'] = neutral_data  ['% Neutral Comments'].astype(float)
+
+x = neutral_data ['Gap Score']
+y = neutral_data ['% Neutral Comments']
+
+slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+
+y_min_limit = -1  # Define your desired minimum limit
+y_max_limit = 50  # Define your desired maximum limit
+plt.ylim(y_min_limit, y_max_limit)
+
+regression_line = slope * x + intercept
+
+plt.scatter(x, y, label='Data', s=10)
+plt.plot(x, regression_line, color='red', label='Regression Line')
+plt.xlabel('Gap Score')
+plt.ylabel('% of Neutral Comments')
+plt.title('Gap Score and (%) of Neutral Comments')
+plt.legend()
+
+plt.show()
+
+'''
+Gap Score vs Percent of Negative Comments
+'''
+negative_data = pd.read_csv('C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/NEG.csv')
+
+negative_data  = negative_data .dropna(subset=['Gap Score', '% Negative Comments'])
+
+
+mask = negative_data  ['% Negative Comments'].str.contains('{}')
+
+negative_data   = negative_data  [~mask]
+
+negative_data  ['% Negative Comments'] = negative_data  ['% Negative Comments'].astype(float)
+
+x = negative_data ['Gap Score']
+y = negative_data ['% Negative Comments']
 
 slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
 
@@ -59,32 +94,14 @@ regression_line = slope * x + intercept
 
 plt.scatter(x, y, label='Data', s=10)
 plt.plot(x, regression_line, color='red', label='Regression Line')
-plt.xlabel('Gap Score Away')
-plt.ylabel('Away Positive')
-plt.title('Gap Score and (%) of Positive Comments for Away Teams')
+plt.xlabel('Gap Score')
+plt.ylabel('% of Negative Comments')
+plt.title('Gap Score and (%) of Negative Comments')
 plt.legend()
 
 plt.show()
-
-# Away Negative
-
-MatchInfo_plot = MatchInfo.dropna(subset=['gap_score_away', 'Away_negative'])
-
-x = MatchInfo_plot['gap_score_away']
-y = MatchInfo_plot['Away_negative']
-
-slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-
-regression_line = slope * x + intercept
-
-plt.scatter(x, y, label='Data', s=10)
-plt.plot(x, regression_line, color='red', label='Regression Line')
-plt.xlabel('Gap Score Away')
-plt.ylabel('Away Negative')
-plt.title('Gap Score and (%) of Negative Comments for Away Teams')
-plt.legend()
-
-plt.show()
+r_squared = r_value ** 2
+print(f'R-squared: {r_squared:.2f}')
 
 #------------------------------------------------------------------------------
 
@@ -230,12 +247,117 @@ plt.legend()
 plt.show()
 
 
+'''
+Change in percentage of comments with POSITIVE gap score from pre-match vs post-match
+'''
 
+pos_change = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/PosChange.csv")
 
+pos_change = pos_change.dropna()
 
+mask = pos_change['Change in % positive comments'].str.contains('{}')
 
+pos_change = pos_change[~mask]
 
+pos_change['Change in % positive comments'] = pos_change['Change in % positive comments'].astype(float)
 
+x = pos_change['Gap Score']
+y = pos_change['Change in % positive comments']
+
+# Perform linear regression on the filtered data
+slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+regression_line = slope * x + intercept
+
+# Set the Y-axis limits
+y_min_limit = -75  # Define your desired minimum limit
+y_max_limit = 75  # Define your desired maximum limit
+plt.ylim(y_min_limit, y_max_limit)
+
+# Plot the regression line and data points
+plt.scatter(x, y, label='Data', s=10)
+plt.plot(x, regression_line, color='red', label='Regression Line')
+plt.xlabel('Gap Score')
+plt.ylabel('Change in % positive comments')
+plt.title('Gap Score and Change in % of Positive Comments')
+plt.legend()
+
+plt.show()
+r_squared = r_value ** 2
+print(f'R-squared: {r_squared:.2f}')
+
+'''
+Change in percentage of comments with NEUTRAL gap score from pre-match vs post-match
+'''
+
+neu_change = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/NeuChange.csv")
+
+neu_change  = neu_change .dropna()
+
+mask = neu_change ['Change in % negative comments'].str.contains('{}')
+
+neu_change  = neu_change [~mask]
+
+neu_change ['Change in % negative comments'] = neu_change ['Change in % negative comments'].astype(float)
+
+x = neu_change ['Gap Score']
+y = neu_change ['Change in % negative comments']
+
+# Perform linear regression on the filtered data
+slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+regression_line = slope * x + intercept
+
+# Set the Y-axis limits
+y_min_limit = -75  # Define your desired minimum limit
+y_max_limit = 75  # Define your desired maximum limit
+plt.ylim(y_min_limit, y_max_limit)
+
+# Plot the regression line and data points
+plt.scatter(x, y, label='Data', s=10)
+plt.plot(x, regression_line, color='red', label='Regression Line')
+plt.xlabel('Gap Score')
+plt.ylabel('Change in % Neutral Comments')
+plt.title('Gap Score and Change in % of Neutral Comments')
+plt.legend()
+
+plt.show()
+
+'''
+Change in percentage of comments with NEGATIVE gap score from pre-match vs post-match
+'''
+
+neg_change = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/NegChange.csv")
+
+neg_change  = neg_change .dropna()
+
+mask = neg_change ['Change in % negative comments'].str.contains('{}')
+
+neg_change  = neg_change [~mask]
+
+neg_change ['Change in % negative comments'] = neg_change ['Change in % negative comments'].astype(float)
+
+x = neg_change ['Gap Score']
+y = neg_change ['Change in % negative comments']
+
+# Perform linear regression on the filtered data
+slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+regression_line = slope * x + intercept
+
+# Set the Y-axis limits
+y_min_limit = -75  # Define your desired minimum limit
+y_max_limit = 75  # Define your desired maximum limit
+plt.ylim(y_min_limit, y_max_limit)
+
+# Plot the regression line and data points
+plt.scatter(x, y, label='Data', s=10)
+plt.plot(x, regression_line, color='red', label='Regression Line')
+plt.xlabel('Gap Score')
+plt.ylabel('Change in % Negative Comments')
+plt.title('Gap Score and Change in % of Negative Comments')
+plt.legend()
+
+plt.show()
+
+#------------------------------------------------------------------------------
 
 
 
