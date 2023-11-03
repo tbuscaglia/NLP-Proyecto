@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from tqdm import tqdm
 import numpy as np
+import seaborn as sns
+from wordcloud import WordCloud
+import plotly.express as px
+import plotly.graph_objects as go
+import webbrowser
+
+
 
 '''
 Gap Score vs Percent of Positive Comments
@@ -20,6 +27,7 @@ positive_data ['% Positive Comments'] = positive_data ['% Positive Comments'].as
 
 x = positive_data['Gap Score']
 y = positive_data['% Positive Comments']
+print(len(x))
 
 slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
 
@@ -36,6 +44,37 @@ plt.show()
 
 r_squared = r_value ** 2
 print(f'R-squared: {r_squared:.2f}')
+
+#------------------------------------------------------------------------------
+
+fig = px.scatter(positive_data, x='Gap Score', y='% Positive Comments', color='Team',
+                 labels={'Gap Score': 'Gap Score', '% Positive Comments': '% Positive Comments'},
+                 title='Gap Score vs Percentage of Post-Match Positive Comments',
+                 trendline='ols')
+
+fig.update_layout(
+    updatemenus=[
+        dict(
+            type='buttons',
+            showactive=True,
+            buttons=[
+                dict(label='Show Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, True]}]),  # Show the regression line
+                dict(label='Hide Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, False]}])  # Hide the regression line
+            ]
+        )
+    ]
+)
+
+
+fig.update_xaxes(range=[-0.2, 0.5])  # Replace xmin and xmax with your desired range
+fig.update_yaxes(range=[15, 90])
+fig.write_html("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive Gap vs Positive Comments.html")
+
+webbrowser.open('C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive Gap vs Positive Comments.html')
 
 '''
 Gap Score vs Percent of Neutral Comments
@@ -102,6 +141,35 @@ plt.legend()
 plt.show()
 r_squared = r_value ** 2
 print(f'R-squared: {r_squared:.2f}')
+
+fig = px.scatter(negative_data, x='Gap Score', y='% Negative Comments', color='Team',
+                 labels={'Gap Score': 'Gap Score', '% Negative Comments': '% Negative Comments'},
+                 title='Gap Score vs Percentage of Post-Match Negative Comments',
+                 trendline='ols')
+
+fig.update_layout(
+    updatemenus=[
+        dict(
+            type='buttons',
+            showactive=True,
+            buttons=[
+                dict(label='Show Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, True]}]),  # Show the regression line
+                dict(label='Hide Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, False]}])  # Hide the regression line
+            ]
+        )
+    ]
+)
+
+
+fig.update_xaxes(range=[-0.2, 0.5])  # Replace xmin and xmax with your desired range
+fig.update_yaxes(range=[0, 50])
+fig.write_html("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive Gap vs Negative Comments.html")
+
+webbrowser.open('C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive Gap vs Negative Comments.html')
 
 #------------------------------------------------------------------------------
 
@@ -285,6 +353,38 @@ plt.show()
 r_squared = r_value ** 2
 print(f'R-squared: {r_squared:.2f}')
 
+#Interactive Plot
+fig = px.scatter(pos_change, x='Gap Score', y='Change in % positive comments', color='Team',
+                 labels={'Gap Score': 'Gap Score', 'Change in % positive comments': 'Change in % positive comments'},
+                 title='Positive Comment Percentage Change vs Gap Score',
+                 trendline='ols')
+
+fig.update_layout(
+    updatemenus=[
+        dict(
+            type='buttons',
+            showactive=True,
+            buttons=[
+                dict(label='Show Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, True]}]),  # Show the regression line
+                dict(label='Hide Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, False]}])  # Hide the regression line
+            ]
+        )
+    ]
+)
+
+
+fig.update_xaxes(range=[-0.3, 0.5])  
+fig.update_yaxes(range=[-75, 75])
+fig.write_html("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive positive percentage change.html")
+
+webbrowser.open('C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive positive percentage change.html')
+
+
+
 '''
 Change in percentage of comments with NEUTRAL gap score from pre-match vs post-match
 '''
@@ -320,6 +420,7 @@ plt.title('Gap Score and Change in % of Neutral Comments')
 plt.legend()
 
 plt.show()
+
 
 '''
 Change in percentage of comments with NEGATIVE gap score from pre-match vs post-match
@@ -359,8 +460,102 @@ plt.show()
 r_squared = r_value ** 2
 print(f'R-squared: {r_squared:.2f}')
 
+#Interactive Plot
+fig = px.scatter(neg_change, x='Gap Score', y='Change in % negative comments', color='Team',
+                 labels={'Gap Score': 'Gap Score', 'Change in % negative comments': 'Change in % negative comments'},
+                 title='Negative Comment Percentage Change vs Gap Score',
+                 trendline='ols')
+
+fig.update_layout(
+    updatemenus=[
+        dict(
+            type='buttons',
+            showactive=True,
+            buttons=[
+                dict(label='Show Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, True]}]),  # Show the regression line
+                dict(label='Hide Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, False]}])  # Hide the regression line
+            ]
+        )
+    ]
+)
+
+
+fig.update_xaxes(range=[-0.3, 0.5])  
+fig.update_yaxes(range=[-75, 75])
+fig.write_html("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive negative percentage change.html")
+
+webbrowser.open('C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive negative percentage change.html')
+
+
+
 #------------------------------------------------------------------------------
 
+team_LIWC = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/team_LIWC.csv")
+
+team_LIWC = team_LIWC.T
+
+team_LIWC.columns = team_LIWC.iloc[0]
+
+# Remove the first row which now contains column names
+team_LIWC = team_LIWC[1:]
+
+# Reset the index
+team_LIWC.reset_index(drop=True, inplace=True)
+
+correlations = team_LIWC.corr()
+
+plt.figure(figsize=(12, 10))
+sns.heatmap(correlations, annot=True, cmap="coolwarm", square=True)
+plt.title("Team Correlations")
+plt.show()
+
+#------------------------------------------------------------------------------
+gap_LIWC = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/gap_LIWC.csv")
+
+gap_LIWC = gap_LIWC.iloc[:, 1:]
+
+gap_LIWC.reset_index(drop=True, inplace=True)
+
+correlations_gap = gap_LIWC.corr()
+
+plt.figure(figsize=(12, 10))
+sns.heatmap(correlations_gap, annot=True, cmap="coolwarm", square=True)
+plt.title("Team Correlations")
+plt.show()
+
+#------------------------------------------------------------------------------
+#WORD CLOUD 
+
+tf = pd.read_csv("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Datos Proyecto/TFIDF.csv")
+
+tf = tf.iloc[:, 1:]
+
+tf = tf.T
+
+tf.columns = [str(i) for i in range(1, len(tf.columns) + 1)]
+
+for column in tf.columns:
+    cuantil = tf[column]
+
+    # Create a dictionary from the words and their scores in the current column
+    word_scores = cuantil.to_dict()
+
+    # Generate a word cloud
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(word_scores)
+
+    # Display the word cloud
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.title(f'Word Cloud for Column {column}')
+    plt.axis("off")
+    print(column)
+    plt.show()
+
+#------------------------------------------------------------------------------
 
 
 
