@@ -314,6 +314,39 @@ plt.legend()
 
 plt.show()
 
+fig = px.scatter(filtered_data, x='Gap Score', y='Percentage change in compound score', color='Team',
+                 labels={'Gap Score': 'Gap Score', 'Percentage change in compound score': 'Percentage change in compound score'},
+                 title='Percentage Change in Compound Score vs Gap Score',
+                 trendline='ols')
+
+fig.update_layout(
+    updatemenus=[
+        dict(
+            type='buttons',
+            showactive=True,
+            buttons=[
+                dict(label='Show Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, True]}]),  # Show the regression line
+                dict(label='Hide Regression Lines',
+                     method='restyle',
+                     args=[{'visible': [True, False]}])  # Hide the regression line
+            ]
+        )
+    ]
+)
+
+
+fig.update_xaxes(range=[-0.3, 0.5])  
+fig.update_yaxes(range=[-400, 400])
+fig.write_html("C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive Compound change.html")
+
+webbrowser.open('C:/Users/tomas/Documents/UdeSA/Tercer Año/Segundo Cuatri/NLP/Final Project/Plots/Interactive Compound change.html')
+
+
+
+
+
 
 '''
 Change in percentage of comments with POSITIVE gap score from pre-match vs post-match
@@ -356,7 +389,7 @@ print(f'R-squared: {r_squared:.2f}')
 #Interactive Plot
 fig = px.scatter(pos_change, x='Gap Score', y='Change in % positive comments', color='Team',
                  labels={'Gap Score': 'Gap Score', 'Change in % positive comments': 'Change in % positive comments'},
-                 title='Positive Comment Percentage Change vs Gap Score',
+                 title='Percentage of Positive Comment Change vs Gap Score',
                  trendline='ols')
 
 fig.update_layout(
@@ -463,7 +496,7 @@ print(f'R-squared: {r_squared:.2f}')
 #Interactive Plot
 fig = px.scatter(neg_change, x='Gap Score', y='Change in % negative comments', color='Team',
                  labels={'Gap Score': 'Gap Score', 'Change in % negative comments': 'Change in % negative comments'},
-                 title='Negative Comment Percentage Change vs Gap Score',
+                 title='Percentage of Negative Comment Change vs Gap Score',
                  trendline='ols')
 
 fig.update_layout(
