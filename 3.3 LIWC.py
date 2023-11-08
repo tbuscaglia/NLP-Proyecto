@@ -34,7 +34,7 @@ for index, row in tqdm(match_info_liwc.iterrows()):
     if row['HomeTeam'] not in ['Brentford', 'Watford', 'Burnley']:
         team = row['HomeTeam']
         gap_score = row['gap_score_home']
-        cuantil = encontrar_cuantil(gap_score)
+        cuantil = gap_score
         match_time = row['Unix_end']
         if team not in team_gap:
             team_gap[team] = {}
@@ -45,7 +45,7 @@ for index, row in tqdm(match_info_liwc.iterrows()):
     if row['AwayTeam'] not in ['Brentford', 'Watford', 'Burnley']:
         team = row['AwayTeam']
         gap_score = row['gap_score_away']
-        cuantil = encontrar_cuantil(gap_score)
+        cuantil = gap_score
         match_time = row['Unix_end']
         if team not in team_gap:
             team_gap[team] = {}        
@@ -64,6 +64,7 @@ for team in team_played:
         if any(item[0] < row_2['Unix Date'] <= item[1] for item in match_starts):
             comment_start = next(item[0] for item in match_starts if item[0] <= row_2['Unix Date'] <= item[1])
             data_team_time[team][comment_start].append(row_2['Comment'])
+'''
 #Separando los comentarios x equipo y x cuantil
         
 comments_by_quantile = {}
@@ -98,3 +99,141 @@ for team in team_names:
     for time in team_played[team]:
         comment3 += len(data_team_time[team][time])
 print(comment3)
+'''
+
+from LIWC import liwc
+text = "hola"
+L = liwc().getLIWCCount(text)
+
+vector_list_gap = {}
+for team in tqdm(team_names):
+    for time in team_played[team]:
+        gap = team_gap[team][time]
+        vector_list_gap[gap]= []
+        for comment in tqdm(data_team_time[team][time]):
+             if isinstance(comment, str):
+                L2 = liwc().getLIWCCount(comment)
+                HEADERS = list(L2.keys())
+                HEADERS.sort()
+                vector = []
+                for h in HEADERS:
+                    if L2['WC']!=0:
+                        if h != 'WC':
+                            vector.append(L2[h]/L2['WC'])
+                        else:
+                            vector.append(L2[h])
+                vector_list_gap[gap].append(vector)
+
+for gap in vector_list_gap:
+    for lista in vector_list_gap[gap]:
+        if len(lista) !=74:
+            print("X")
+
+vector_list_gap_2 = {}    
+for gap in vector_list_gap:
+    sublista_actual = vector_list_gap[gap]
+    nueva_sublista = []
+
+    for lista in sublista_actual:
+        if len(lista) == 74:
+            nueva_sublista.append(lista)
+
+    vector_list_gap_2[gap] = nueva_sublista
+
+for gap in vector_list_gap_2:
+    for lista in vector_list_gap_2[gap]:
+        if len(lista) !=74:
+            print("X")
+
+gap_LIWC = {}
+for gap in vector_list_gap_2:
+    X = np.array(vector_list_gap_2[gap])
+    F = X.mean(axis = 0)
+    gap_LIWC[gap] = F
+    
+df_team = pd.DataFrame(gap_LIWC)
+df_team = df_team.T
+df_team.to_csv('/Users/julianandelsman/Desktop/NLP/Final project/Results/gap_LIWC_2.csv', index=True)
+    
+    
+
+######
+'''
+vector_list_team ={}
+
+for team in team_names:
+    vector_list_team[team] = []
+    for comment in tqdm(comments_by_team[team]):
+        if isinstance(comment, str):
+            L2 = liwc().getLIWCCount(comment)
+            HEADERS = list(L2.keys())
+            HEADERS.sort()
+            vector = []
+            for h in HEADERS:
+                if L2['WC']!=0:
+                    if h != 'WC':
+                        vector.append(L2[h]/L2['WC'])
+                    else:
+                        vector.append(L2[h])
+            vector_list_team[team].append(vector)
+
+for team in team_names:
+    for gap in team_gap[team]: 
+        vector_list_gap[gap] = [lista for lista in vector_list_team[gap] if len(lista) == 74]
+pos = 0
+team_LIWC = {}
+for team in team_names:
+    pos +=1
+    if pos == 13 or pos == 18:
+        pos+=1
+        if pos == 19:
+            pos+=1
+    X = np.array(vector_list_team[team])
+    F = X.mean(axis = 0)
+    team_LIWC[f'{pos} {team}'] = F
+
+df_team = pd.DataFrame(team_LIWC)
+df_team = df_team.T
+df_team.to_csv('/Users/julianandelsman/Desktop/NLP/Final project/Results/team_LIWC.csv', index=True)
+
+
+vector_list_gap ={}
+for gap in range(1,11):
+    vector_list_gap[gap] = []
+    for comment in tqdm(comments_by_quantile[gap]):
+        if isinstance(comment, str):
+            L2 = liwc().getLIWCCount(comment)
+            HEADERS = list(L2.keys())
+            HEADERS.sort()
+            vector = []
+            for h in HEADERS:
+                if L2['WC']!=0:
+                    if h != 'WC':
+                        vector.append(L2[h]/L2['WC'])
+                    else:
+                        vector.append(L2[h])
+            vector_list_gap[gap].append(vector)
+            
+print(HEADERS)
+for gap in range(1,11):
+    i = 0
+    for lista in vector_list_gap[gap]:
+        if len(lista)!= 74:
+            print(lista, len(lista), gap, i)
+        i+=1
+    
+for gap in range(1,11):      
+    vector_list_gap[gap] = [lista for lista in vector_list_gap[gap] if len(lista) == 74]
+
+gap_LIWC = {}
+for gap in range(1,11):
+    X = np.array(vector_list_gap[gap])
+    F = X.mean(axis = 0)
+    gap_LIWC[gap] = F
+
+df_gap = pd.DataFrame(gap_LIWC)
+#df_gap = df_gap.T
+df_gap.to_csv('/Users/julianandelsman/Desktop/NLP/Final project/Results/gap_LIWC.csv', index=True)
+
+
+'''
