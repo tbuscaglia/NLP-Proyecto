@@ -44,4 +44,3 @@ addnotes ("Notes: Each column represents a separate regression. The unit of obse
 *Frequency
 histogram gapscore, bin(20) normal freq title("Gap Score Frequency")
 graph export "$output/Gapscore.png", replace
-
